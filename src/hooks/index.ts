@@ -23,4 +23,15 @@ export {
   useDebounce, 
   useSearchDebounce, 
   useDebounceWithLoading 
-} from './useDebounce'; 
+} from './useDebounce';
+
+// Context combination hooks
+export {
+  useCartWithUser,
+  useProductsWithCart,
+  useAppState,
+  useHeaderData,
+  useProductListing,
+  useCartPage,
+  useUserPermissions,
+} from './useContexts'; 

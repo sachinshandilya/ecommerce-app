@@ -65,21 +65,31 @@ export interface CartContextType {
   cartCount: number;
   cartTotal: number;
   isLoading: boolean;
+  error?: string | null;
   addToCart: (productId: number, quantity?: number) => Promise<void>;
-  removeFromCart: (productId: number) => Promise<void>;
+  removeFromCart: (productId: number) => void;
   clearCart: () => void;
+  updateQuantity?: (productId: number, quantity: number) => void;
+  hasItems?: boolean;
+  getCartItemsWithProducts?: () => Promise<CartItem[]>;
 }
 
 export interface UserContextType {
+  userId: number | null;
   user: User | null;
   isLoading: boolean;
   error: string | null;
   setUserId: (userId: number | null) => void;
+  clearUser?: () => void;
+  isAuthenticated?: boolean;
+  getUserDisplayName?: () => string | null;
+  isValidId?: boolean;
 }
 
 export interface ProductsContextType {
   products: Product[];
   filteredProducts: Product[];
+  allProducts?: Product[];
   categories: string[];
   filters: FilterConfig;
   pagination: PaginationConfig;
@@ -89,6 +99,16 @@ export interface ProductsContextType {
   setPagination: (pagination: Partial<PaginationConfig>) => void;
   searchProducts: (searchTerm: string) => void;
   filterByCategory: (categories: string[]) => void;
+  updateSearchTerm?: (searchTerm: string) => void;
+  updateCategories?: (categories: string[]) => void;
+  resetFilters?: () => void;
+  changePageSize?: (pageSize: number) => void;
+  goToPage?: (page: number) => void;
+  goToNextPage?: () => void;
+  goToPreviousPage?: () => void;
+  hasActiveFilters?: boolean;
+  totalProductsCount?: number;
+  isSearching?: boolean;
 }
 
 // API Response Types

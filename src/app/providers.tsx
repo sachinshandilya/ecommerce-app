@@ -2,11 +2,17 @@
 
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Toaster } from 'react-hot-toast';
-import { useState } from 'react';
+import { useState, Suspense } from 'react';
+import { 
+  UserContextProvider, 
+  ProductsContextProvider, 
+  CartContextProvider 
+} from '@/context';
 
 /**
  * Providers component that wraps the application with necessary context providers
- * Includes React Query client and toast notifications
+ * Includes React Query client, toast notifications, and application contexts
+ * Provider hierarchy: QueryClient -> User -> Products -> Cart
  */
 export function Providers({ children }: { children: React.ReactNode }) {
   // Create a new QueryClient instance for each app session
@@ -35,7 +41,15 @@ export function Providers({ children }: { children: React.ReactNode }) {
 
   return (
     <QueryClientProvider client={queryClient}>
-      {children}
+      <Suspense fallback={<div>Loading...</div>}>
+        <UserContextProvider>
+          <ProductsContextProvider>
+            <CartContextProvider>
+              {children}
+            </CartContextProvider>
+          </ProductsContextProvider>
+        </UserContextProvider>
+      </Suspense>
       <Toaster
         position="top-right"
         toastOptions={{
