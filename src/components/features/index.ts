@@ -61,6 +61,23 @@ export {
   BreadcrumbSkeleton
 } from './ProductBreadcrumb';
 
+// Cart Components
+export {
+  CartItem,
+  CartItemSkeleton
+} from './CartItem';
+
+export {
+  CartSummary,
+  CartSummarySkeleton
+} from './CartSummary';
+
+export {
+  EmptyCart,
+  CompactEmptyCart,
+  EmptyCartWithSuggestions
+} from './EmptyCart';
+
 // Re-export types that might be useful externally
 export type {
   // Add any types that need to be exported for external use
