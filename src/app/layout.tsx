@@ -1,24 +1,48 @@
-import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
-import "./globals.css";
-import { Providers } from "./providers";
+import './globals.css';
+import type { Metadata } from 'next';
+import { Inter } from 'next/font/google';
+import { Providers } from './providers';
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
+// Optimized font loading
+const inter = Inter({
+  subsets: ['latin'],
+  display: 'swap',
+  variable: '--font-inter',
 });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
-
+// Application metadata
 export const metadata: Metadata = {
-  title: "E-Commerce App",
-  description: "Modern e-commerce application built with Next.js, Tailwind CSS, and React Query",
-  keywords: "e-commerce, shopping, online store, products",
-  authors: [{ name: "E-Commerce Team" }],
-  viewport: "width=device-width, initial-scale=1",
+  title: "ShopHub - Online Shopping Store",
+  description: "Discover quality products at competitive prices. Shop electronics, clothing, and more with fast shipping and excellent customer service.",
+  keywords: "online shopping, electronics, clothing, home goods, quality products, fast shipping",
+  authors: [{ name: "ShopHub Team" }],
+  
+  // Open Graph metadata for social sharing
+  openGraph: {
+    title: "ShopHub - Online Shopping Store",
+    description: "Your trusted marketplace for quality products",
+    type: 'website',
+    locale: 'en_US',
+  },
+  
+  // Twitter Card metadata
+  twitter: {
+    card: 'summary_large_image',
+    title: "ShopHub - Online Shopping Store",
+    description: "Your trusted marketplace for quality products",
+  },
+  
+  // Additional metadata
+  robots: {
+    index: true,
+    follow: true,
+  },
+  
+  // Viewport configuration
+  viewport: {
+    width: 'device-width',
+    initialScale: 1,
+  },
 };
 
 export default function RootLayout({
@@ -29,7 +53,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${inter.variable} antialiased`}
       >
         <Providers>
           {children}

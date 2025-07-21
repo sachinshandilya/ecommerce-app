@@ -58,7 +58,7 @@ export const isValidProductId = (productId: number): boolean => {
 export const isValidSearchTerm = (searchTerm: string): boolean => {
   return (
     typeof searchTerm === 'string' &&
-    searchTerm.length >= VALIDATION_RULES.MIN_SEARCH_LENGTH &&
+    searchTerm.trim().length >= 1 && // Allow single character searches
     searchTerm.length <= VALIDATION_RULES.MAX_SEARCH_LENGTH
   );
 };

@@ -17,7 +17,7 @@ import { LoadingText } from '@/components/ui';
 import { useProduct } from '@/hooks';
 
 interface ProductDetailsPageProps {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }
 
 /**
@@ -25,8 +25,11 @@ interface ProductDetailsPageProps {
  * Displays comprehensive product information with responsive layout
  */
 export default function ProductDetailsPage({ params }: ProductDetailsPageProps) {
+  // Unwrap params promise (Next.js 15+)
+  const resolvedParams = React.use(params);
+  
   // Validate and parse product ID
-  const productId = parseInt(params.id);
+  const productId = parseInt(resolvedParams.id);
   
   // Redirect to 404 if ID is invalid
   if (isNaN(productId) || productId <= 0) {

@@ -10,7 +10,7 @@ import { isValidUserId } from '@/utils/helpers';
  * Used when userId is present in URL parameters
  */
 export const useUser = (userId: number | null) => {
-  const isValidId = userId && isValidUserId(userId);
+  const isValidId = !!(userId && isValidUserId(userId));
 
   const { data, isLoading, error, refetch } = useQuery<User>({
     queryKey: ['user', userId],
@@ -41,7 +41,7 @@ export const useUser = (userId: number | null) => {
  * Useful for validation purposes
  */
 export const useUserExists = (userId: number | null) => {
-  const isValidId = userId && isValidUserId(userId);
+  const isValidId = !!(userId && isValidUserId(userId));
 
   const { data, error } = useQuery<User>({
     queryKey: ['user-exists', userId],

@@ -6,8 +6,6 @@ import { useSearchDebounce } from '@/hooks';
 import { useProductsContext } from '@/context';
 
 interface SearchBarProps {
-  value?: string;
-  onChange?: (value: string) => void;
   placeholder?: string;
   className?: string;
   autoFocus?: boolean;
@@ -20,8 +18,6 @@ interface SearchBarProps {
  * Integrates with ProductsContext for real-time product filtering
  */
 export function SearchBar({
-  value: controlledValue,
-  onChange: controlledOnChange,
   placeholder = 'Search products...',
   className = '',
   autoFocus = false,
@@ -30,60 +26,38 @@ export function SearchBar({
 }: SearchBarProps) {
   const { updateSearchTerm, filters, allProducts, isSearching } = useProductsContext();
   
-  // Use controlled or uncontrolled mode
-  const [internalValue, setInternalValue] = useState(controlledValue || filters?.searchTerm || '');
-  const debouncedSearchTerm = useSearchDebounce(internalValue);
-  
-  // Track if we're using controlled mode
-  const isControlled = controlledValue !== undefined && controlledOnChange !== undefined;
-  
-  // Get current value based on mode
-  const currentValue = isControlled ? controlledValue : internalValue;
+  // Internal state for the input value
+  const [inputValue, setInputValue] = useState(filters?.searchTerm || '');
+  const debouncedSearchTerm = useSearchDebounce(inputValue);
 
-  // Update search when debounced value changes
+  // Update ProductsContext when debounced value changes
   useEffect(() => {
-    if (isControlled) {
-      // In controlled mode, call the provided onChange
-      if (controlledOnChange) {
-        controlledOnChange(debouncedSearchTerm);
-      }
-    } else {
-      // In uncontrolled mode, update ProductsContext
-      if (updateSearchTerm && debouncedSearchTerm !== filters?.searchTerm) {
-        updateSearchTerm(debouncedSearchTerm);
-      }
+    if (updateSearchTerm && debouncedSearchTerm !== filters?.searchTerm) {
+      updateSearchTerm(debouncedSearchTerm);
     }
-  }, [debouncedSearchTerm, isControlled, controlledOnChange, updateSearchTerm, filters?.searchTerm]);
+  }, [debouncedSearchTerm, updateSearchTerm, filters?.searchTerm]);
+
+  // Sync with context when search term is reset externally
+  useEffect(() => {
+    if (filters?.searchTerm !== inputValue && filters?.searchTerm !== undefined) {
+      setInputValue(filters.searchTerm);
+    }
+  }, [filters?.searchTerm]);
 
   // Handle input change
   const handleChange = (newValue: string) => {
-    if (isControlled) {
-      // In controlled mode, don't update internal state
-      if (controlledOnChange) {
-        controlledOnChange(newValue);
-      }
-    } else {
-      // In uncontrolled mode, update internal state
-      setInternalValue(newValue);
-    }
+    setInputValue(newValue);
   };
 
   // Handle clear
   const handleClear = () => {
-    handleChange('');
+    setInputValue('');
   };
-
-  // Sync with context when not controlled
-  useEffect(() => {
-    if (!isControlled && filters?.searchTerm !== internalValue) {
-      setInternalValue(filters?.searchTerm || '');
-    }
-  }, [filters?.searchTerm, isControlled, internalValue]);
 
   return (
     <div className={`relative ${className}`}>
       <SearchInput
-        value={currentValue}
+        value={inputValue}
         onChange={handleChange}
         onClear={handleClear}
         placeholder={placeholder}
@@ -93,9 +67,9 @@ export function SearchBar({
         aria-label={placeholder}
       />
       
-      {showSuggestions && currentValue && (
+      {showSuggestions && inputValue && inputValue.length > 0 && (
         <SearchSuggestions
-          searchTerm={currentValue}
+          searchTerm={inputValue}
           products={allProducts || []}
           onSuggestionClick={handleChange}
         />
@@ -228,7 +202,7 @@ export function AdvancedSearchBar({
     <div className={`bg-white rounded-lg border border-gray-200 p-4 ${className}`}>
       {/* Main Search */}
       <div className="flex items-center space-x-2">
-        <SearchBar
+        <SearchInput
           value={localFilters.search}
           onChange={handleSearchChange}
           placeholder="Search products..."
@@ -349,7 +323,7 @@ export function QuickSearch({
   };
 
   return (
-    <SearchBar
+    <SearchInput
       value={filters?.searchTerm || ''}
       onChange={updateSearchTerm || (() => {})}
       placeholder={placeholder}

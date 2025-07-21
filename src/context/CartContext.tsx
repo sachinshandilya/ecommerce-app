@@ -1,8 +1,10 @@
 'use client';
 
 import React, { createContext, useContext, useState, useCallback, useMemo } from 'react';
-import { CartItem, Product, CartContextType } from '@/types';
-import { useAddToCart, useRemoveFromCart, useProduct } from '@/hooks';
+import { useMutation } from '@tanstack/react-query';
+import { CartItem, CartContextType, Product } from '@/types';
+import { useAddToCart, useRemoveFromCart } from '@/hooks';
+import { fetchProductById } from '@/utils/api';
 import { toast } from 'react-hot-toast';
 import { CART_DEFAULTS } from '@/utils/constants';
 
@@ -24,11 +26,14 @@ export function CartContextProvider({ children }: { children: React.ReactNode })
 
   /**
    * Add product to cart
-   * Uses hybrid approach: stores productId and quantity, optionally caches product data
+   * Fetches product data immediately for accurate totals
    */
   const addToCart = useCallback(async (productId: number, quantity: number = CART_DEFAULTS.DEFAULT_QUANTITY) => {
     try {
       setIsLoading(true);
+
+      // Fetch product data first
+      const productData = await fetchProductById(productId);
 
       // Check if item already exists in cart
       const existingItemIndex = cartItems.findIndex(item => item.productId === productId);
@@ -38,23 +43,21 @@ export function CartContextProvider({ children }: { children: React.ReactNode })
         setCartItems(prev => 
           prev.map((item, index) => 
             index === existingItemIndex 
-              ? { ...item, quantity: item.quantity + quantity }
+              ? { ...item, quantity: item.quantity + quantity, productData }
               : item
           )
         );
       } else {
-        // Add new item to cart
+        // Add new item to cart with product data
         const newCartItem: CartItem = {
           productId,
           quantity,
-          // productData will be fetched when needed for display
+          productData,
         };
         
         setCartItems(prev => [...prev, newCartItem]);
       }
 
-      // Note: In a real implementation, this would call the API
-      // For now, we're managing cart state client-side only
       toast.success(`Added ${quantity} item${quantity > 1 ? 's' : ''} to cart`);
       
     } catch (error) {
@@ -116,14 +119,16 @@ export function CartContextProvider({ children }: { children: React.ReactNode })
 
   /**
    * Calculate cart total
-   * Only calculates if all items have product data loaded
+   * All items should have product data when added to cart
    */
   const cartTotal = useMemo(() => {
     return cartItems.reduce((total, item) => {
       if (item.productData) {
         return total + (item.productData.price * item.quantity);
+      } else {
+        console.warn(`Cart item ${item.productId} missing product data for total calculation`);
+        return total;
       }
-      return total;
     }, 0);
   }, [cartItems]);
 
@@ -140,13 +145,38 @@ export function CartContextProvider({ children }: { children: React.ReactNode })
   const hasItems = useMemo(() => cartItems.length > 0, [cartItems]);
 
   /**
-   * Get cart items with product data
-   * This function can be used to fetch product data for display
+   * Get cart items with full product data
+   * Fetches product details for each cart item
    */
   const getCartItemsWithProducts = useCallback(async (): Promise<CartItem[]> => {
-    // In a real implementation, this would fetch missing product data
-    // For now, return items as-is
-    return cartItems;
+    if (cartItems.length === 0) {
+      return [];
+    }
+
+    try {
+      // Fetch product data for each cart item
+      const itemsWithProducts = await Promise.all(
+        cartItems.map(async (item) => {
+          try {
+            const productData = await fetchProductById(item.productId);
+            return {
+              ...item,
+              productData,
+            };
+          } catch (error) {
+            console.error(`Failed to fetch product ${item.productId}:`, error);
+            // Return item without product data if fetch fails
+            return item;
+          }
+        })
+      );
+
+      return itemsWithProducts;
+    } catch (error) {
+      console.error('Failed to fetch cart items with products:', error);
+      // Return original items if bulk fetch fails
+      return cartItems;
+    }
   }, [cartItems]);
 
   const contextValue: CartContextType = {

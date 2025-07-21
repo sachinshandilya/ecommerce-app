@@ -11,7 +11,7 @@ import { isValidProductId } from '@/utils/helpers';
  */
 export const useProduct = (productId: number | string | undefined) => {
   const id = typeof productId === 'string' ? parseInt(productId, 10) : productId;
-  const isValidId = id && isValidProductId(id);
+  const isValidId = !!(id && isValidProductId(id));
 
   const { data, isLoading, error, refetch } = useQuery<Product>({
     queryKey: ['product', id],
@@ -42,7 +42,7 @@ export const useProduct = (productId: number | string | undefined) => {
  */
 export const useProductExists = (productId: number | string | undefined) => {
   const id = typeof productId === 'string' ? parseInt(productId, 10) : productId;
-  const isValidId = id && isValidProductId(id);
+  const isValidId = !!(id && isValidProductId(id));
 
   const { data, error } = useQuery<Product>({
     queryKey: ['product-exists', id],

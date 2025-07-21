@@ -9,10 +9,146 @@ import {
   UserProfileSkeleton,
   ProductBreadcrumb
 } from '@/components/features';
-import { LoadingText } from '@/components/ui';
+import { LoadingText, Button } from '@/components/ui';
 import { useUserContext } from '@/context';
 import { extractUserIdFromUrl, validateUserId, isValidUserIdForApi } from '@/utils/urlParams';
 import { toast } from 'react-hot-toast';
+
+/**
+ * User Selection Guide Component
+ * Shows when no userId is provided in URL
+ */
+function UserSelectionGuide() {
+  const router = useRouter();
+  const [customUserId, setCustomUserId] = useState('');
+
+  const handleUserSelect = (userId: number) => {
+    router.push(`/profile?userId=${userId}`);
+  };
+
+  const handleCustomUserSubmit = () => {
+    if (customUserId) {
+      handleUserSelect(parseInt(customUserId));
+    }
+  };
+
+  const sampleUsers = [
+    { id: 1, name: 'Leanne Graham', username: 'Bret', description: 'Sample user from Sincere@april.biz' },
+    { id: 2, name: 'Ervin Howell', username: 'Antonette', description: 'Sample user from Shanna@melissa.tv' },
+    { id: 3, name: 'Clementine Bauch', username: 'Samantha', description: 'Sample user from Nathan@yesenia.net' },
+    { id: 4, name: 'Patricia Lebsack', username: 'Karianne', description: 'Sample user from Julianne.OConner@kory.org' },
+    { id: 5, name: 'Chelsey Dietrich', username: 'Kamren', description: 'Sample user from Lucio_Hettinger@annie.ca' },
+  ];
+
+  return (
+    <div className="max-w-4xl mx-auto">
+      {/* Header */}
+      <div className="text-center mb-12">
+        <h1 className="text-4xl font-bold text-gray-900 mb-4">
+          User Profiles
+        </h1>
+        <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+          Select a user to view their profile information and manage account settings.
+        </p>
+      </div>
+
+      {/* User Selection Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
+        {sampleUsers.map((user) => (
+          <div
+            key={user.id}
+            className="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-lg transition-shadow cursor-pointer group"
+            onClick={() => handleUserSelect(user.id)}
+          >
+            <div className="flex items-center space-x-4 mb-4">
+              <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
+                <span className="text-lg font-semibold text-white">
+                  {user.name.split(' ').map(n => n.charAt(0)).join('')}
+                </span>
+              </div>
+              <div>
+                <h3 className="text-lg font-semibold text-gray-900 group-hover:text-blue-600 transition-colors">
+                  {user.name}
+                </h3>
+                <p className="text-sm text-gray-500">@{user.username}</p>
+              </div>
+            </div>
+            <p className="text-sm text-gray-600 mb-4">{user.description}</p>
+            <div className="flex items-center justify-between">
+              <span className="text-xs text-gray-500">User ID: {user.id}</span>
+              <Button 
+                variant="outline" 
+                size="sm"
+                onClick={() => handleUserSelect(user.id)}
+              >
+                View Profile
+              </Button>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* Custom User ID Input */}
+      <div className="bg-blue-50 border border-blue-200 rounded-lg p-6">
+        <h3 className="text-lg font-semibold text-blue-900 mb-4">
+          Try a Custom User ID
+        </h3>
+        <p className="text-blue-800 mb-4">
+          You can also view any user by adding <code className="bg-blue-100 px-2 py-1 rounded">?userId=NUMBER</code> to the URL, or enter a user ID below:
+        </p>
+        <div className="flex flex-col sm:flex-row gap-4">
+          <input
+            type="number"
+            placeholder="Enter user ID (1-10)"
+            min="1"
+            max="10"
+            value={customUserId}
+            onChange={(e) => setCustomUserId(e.target.value)}
+            className="flex-1 px-4 py-2 border border-blue-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') {
+                handleCustomUserSubmit();
+              }
+            }}
+          />
+          <Button 
+            variant="primary"
+            onClick={handleCustomUserSubmit}
+          >
+            View Profile
+          </Button>
+        </div>
+      </div>
+
+      {/* Info Section */}
+      <div className="mt-12 bg-gray-50 border border-gray-200 rounded-lg p-6">
+        <h3 className="text-lg font-semibold text-gray-900 mb-4">
+          About User Profiles
+        </h3>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-sm text-gray-600">
+          <div>
+            <h4 className="font-medium text-gray-900 mb-2">What you'll see:</h4>
+            <ul className="space-y-1">
+              <li>• Complete user information</li>
+              <li>• Contact details and address</li>
+              <li>• Profile avatar with initials</li>
+              <li>• Responsive design for all devices</li>
+            </ul>
+          </div>
+          <div>
+            <h4 className="font-medium text-gray-900 mb-2">Profile Features:</h4>
+            <ul className="space-y-1">
+              <li>• Profile icon appears in header</li>
+              <li>• URL parameter integration</li>
+              <li>• Real-time data from JSONPlaceholder API</li>
+              <li>• Error handling for invalid users</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
 
 export default function ProfilePage() {
   const searchParams = useSearchParams();
@@ -28,8 +164,10 @@ export default function ProfilePage() {
     const userIdFromUrl = searchParams.get('userId');
     setUserIdParam(userIdFromUrl);
     
+    // If no userId provided, we'll show the user selection guide
     if (!userIdFromUrl) {
-      setLocalError('No user ID provided in URL');
+      setLocalError(null);
+      setParsedUserId(null);
       return;
     }
 
@@ -66,6 +204,25 @@ export default function ProfilePage() {
   const handleNavigateToProducts = () => {
     router.push('/');
   };
+
+  // Show user selection guide when no userId is provided
+  if (!userIdParam) {
+    return (
+      <Layout>
+        <PageLayout maxWidth="7xl" padding="md">
+          {/* Breadcrumb */}
+          <div className="mb-6">
+            <ProductBreadcrumb 
+              productTitle="User Profiles" 
+              showHome={true}
+            />
+          </div>
+
+          <UserSelectionGuide />
+        </PageLayout>
+      </Layout>
+    );
+  }
 
   // Show loading state
   if (isLoading || (!user && parsedUserId && !localError && !error)) {
@@ -175,6 +332,16 @@ export default function ProfilePage() {
             {/* Profile Actions */}
             <div className="mt-4 sm:mt-0 flex flex-col sm:flex-row gap-3">
               <button
+                onClick={() => router.push('/profile')}
+                className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+              >
+                <svg className="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                </svg>
+                All Users
+              </button>
+
+              <button
                 onClick={handleNavigateToProducts}
                 className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
               >
@@ -270,6 +437,12 @@ export default function ProfilePage() {
               <h4 className="font-medium mb-2">Quick Actions</h4>
               <div className="space-y-2 text-sm">
                 <button
+                  onClick={() => router.push('/profile')}
+                  className="block text-left text-blue-700 hover:text-blue-900"
+                >
+                  → View all users
+                </button>
+                <button
                   onClick={() => router.push('/')}
                   className="block text-left text-blue-700 hover:text-blue-900"
                 >
@@ -295,7 +468,7 @@ export default function ProfilePage() {
         {/* Footer Info */}
         <div className="mt-8 pt-8 border-t border-gray-200 text-center text-sm text-gray-500">
           <p>
-            This is a demo profile page. User data is fetched from the JSONPlaceholder API.
+            Manage your profile information and account preferences.
           </p>
           <p className="mt-1">
             Profile features are available when a valid userId parameter is provided in the URL.

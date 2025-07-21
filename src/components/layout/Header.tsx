@@ -18,25 +18,6 @@ export function Header() {
   // Context integration
   const { cartCount } = useCartContext();
   const { userId, user, getUserDisplayName } = useUserContext();
-  const { searchProducts, filters } = useProductsContext();
-
-  // Handle search functionality
-  const handleSearch = (searchTerm: string) => {
-    if (searchProducts) {
-      searchProducts(searchTerm);
-      // Navigate to products page if not already there
-      if (window.location.pathname !== '/') {
-        router.push('/');
-      }
-    }
-  };
-
-  // Handle search clear
-  const handleSearchClear = () => {
-    if (searchProducts) {
-      searchProducts('');
-    }
-  };
 
   // Toggle mobile menu
   const toggleMobileMenu = () => {
@@ -86,19 +67,8 @@ export function Header() {
               className="flex items-center space-x-2 text-xl font-bold text-gray-900 hover:text-blue-600 transition-colors"
             >
               <span className="text-2xl">🛒</span>
-              <span className="hidden sm:block">E-Commerce</span>
+              <span className="hidden sm:block">ShopHub</span>
             </Link>
-          </div>
-
-          {/* Desktop Search Bar */}
-          <div className="hidden md:flex flex-1 max-w-lg mx-8">
-            <SearchInput
-              value={filters?.searchTerm || ''}
-              onChange={handleSearch}
-              onClear={handleSearchClear}
-              placeholder="Search products..."
-              className="w-full"
-            />
           </div>
 
           {/* Desktop Navigation */}
@@ -138,19 +108,27 @@ export function Header() {
               className="hidden lg:block"
             />
 
-            {/* Fallback Profile Link for smaller screens when user exists */}
-            {userId && (
-              <Link
-                href="/profile"
-                className="lg:hidden flex items-center space-x-1 px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:text-blue-600 hover:bg-blue-50 transition-colors"
-                title={getUserDisplayName?.() || `User ${userId}`}
-              >
-                <UserIcon />
-                <span className="hidden md:block">
-                  {getUserDisplayName?.() || 'Profile'}
-                </span>
-              </Link>
-            )}
+            {/* Profile Link for smaller screens - always show */}
+            <Link
+              href={userId ? `/profile?userId=${userId}` : '/profile'}
+              className="lg:hidden flex items-center space-x-1 px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:text-blue-600 hover:bg-blue-50 transition-colors"
+              title={userId && user ? `${user.name.firstname} ${user.name.lastname}` : 'User Profiles'}
+            >
+              {userId && user ? (
+                <div className="w-6 h-6 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
+                  <span className="text-xs font-semibold text-white">
+                    {user.name.firstname.charAt(0).toUpperCase()}{user.name.lastname.charAt(0).toUpperCase()}
+                  </span>
+                </div>
+              ) : (
+                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                </svg>
+              )}
+              <span className="hidden md:block">
+                {userId && user ? getUserDisplayName?.() || 'Profile' : 'Users'}
+              </span>
+            </Link>
           </nav>
 
           {/* Mobile menu button */}
@@ -162,17 +140,6 @@ export function Header() {
               aria-label="Toggle menu"
             />
           </div>
-        </div>
-
-        {/* Mobile Search Bar */}
-        <div className="md:hidden pb-4">
-          <SearchInput
-            value={filters?.searchTerm || ''}
-            onChange={handleSearch}
-            onClear={handleSearchClear}
-            placeholder="Search products..."
-            className="w-full"
-          />
         </div>
       </div>
 
@@ -197,16 +164,32 @@ export function Header() {
               </Link>
             ))}
             
-            {/* Enhanced User Info in Mobile Menu */}
-            {userId && user && (
-              <div className="border-t border-gray-200 pt-4 mt-4">
+            {/* Enhanced User Info in Mobile Menu - Always show */}
+            <div className="border-t border-gray-200 pt-4 mt-4">
+              {userId && user ? (
                 <UserProfileMenuButton
                   userId={userId}
                   user={user}
                   onClick={() => setIsMobileMenuOpen(false)}
                 />
-              </div>
-            )}
+              ) : (
+                <Link
+                  href="/profile"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className="flex items-center space-x-3 px-3 py-3 rounded-lg hover:bg-gray-50 transition-colors"
+                >
+                  <div className="w-10 h-10 bg-gradient-to-br from-gray-500 to-gray-600 rounded-full flex items-center justify-center">
+                    <svg className="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                    </svg>
+                  </div>
+                  <div className="flex-1">
+                    <p className="text-sm font-medium text-gray-900">User Profiles</p>
+                    <p className="text-xs text-gray-500">View all users</p>
+                  </div>
+                </Link>
+              )}
+            </div>
           </nav>
         </div>
       )}
@@ -227,7 +210,7 @@ export function MinimalHeader() {
             className="flex items-center space-x-2 text-lg font-bold text-gray-900 hover:text-blue-600 transition-colors"
           >
             <span className="text-xl">🛒</span>
-            <span>E-Commerce</span>
+            <span>ShopHub</span>
           </Link>
           
           <Link

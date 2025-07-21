@@ -1,3 +1,5 @@
+'use client';
+
 import { Layout, PageLayout } from '@/components/layout';
 import { 
   ProductGrid, 
@@ -6,7 +8,7 @@ import {
   CategoryFilter, 
   Pagination, 
   QuickCategoryFilter 
-} from '@/components/features';
+} from '../components/features';
 import { Button } from '@/components/ui';
 import { useProductsContext } from '@/context';
 
