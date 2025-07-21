@@ -34,6 +34,33 @@ export {
   QuickPagination
 } from './Pagination';
 
+// Product Details Components
+export {
+  ProductImageDisplay,
+  ProductImageGallery,
+  ProductImageSkeleton
+} from './ProductImageDisplay';
+
+export {
+  ProductInfo,
+  ProductRating,
+  ProductInfoSkeleton
+} from './ProductInfo';
+
+export {
+  AddToCartSection,
+  QuickAddToCart,
+  AddToCartSkeleton
+} from './AddToCartSection';
+
+export {
+  ProductBreadcrumb,
+  MobileBreadcrumb,
+  BreadcrumbWithActions,
+  ResponsiveBreadcrumb,
+  BreadcrumbSkeleton
+} from './ProductBreadcrumb';
+
 // Re-export types that might be useful externally
 export type {
   // Add any types that need to be exported for external use
