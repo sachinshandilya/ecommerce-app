@@ -78,6 +78,25 @@ export {
   EmptyCartWithSuggestions
 } from './EmptyCart';
 
+// User Profile Components
+export {
+  UserProfile,
+  UserProfileSkeleton
+} from './UserProfile';
+
+export {
+  UserProfileIcon,
+  UserProfileIconSkeleton,
+  UserProfileBadge,
+  UserProfileMenuButton
+} from './UserProfileIcon';
+
+export {
+  UserNotFound,
+  CompactUserNotFound,
+  UserNotFoundBanner
+} from './UserNotFound';
+
 // Re-export types that might be useful externally
 export type {
   // Add any types that need to be exported for external use

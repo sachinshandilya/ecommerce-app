@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { SearchInput, Button, IconButton, Badge, CountBadge } from '../ui';
+import { UserProfileIcon, UserProfileMenuButton } from '../features';
 import { useCartContext, useUserContext, useProductsContext } from '@/context';
 
 /**
@@ -127,15 +128,25 @@ export function Header() {
               )}
             </Link>
 
-            {/* User Profile Link (conditional) */}
+            {/* User Profile Icon (Enhanced) */}
+            <UserProfileIcon
+              userId={userId}
+              user={user}
+              variant="compact"
+              showUsername={true}
+              showDropdown={true}
+              className="hidden lg:block"
+            />
+
+            {/* Fallback Profile Link for smaller screens when user exists */}
             {userId && (
               <Link
                 href="/profile"
-                className="flex items-center space-x-1 px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:text-blue-600 hover:bg-blue-50 transition-colors"
+                className="lg:hidden flex items-center space-x-1 px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:text-blue-600 hover:bg-blue-50 transition-colors"
                 title={getUserDisplayName?.() || `User ${userId}`}
               >
                 <UserIcon />
-                <span className="hidden lg:block">
+                <span className="hidden md:block">
                   {getUserDisplayName?.() || 'Profile'}
                 </span>
               </Link>
@@ -186,24 +197,14 @@ export function Header() {
               </Link>
             ))}
             
-            {/* User Info in Mobile Menu */}
+            {/* Enhanced User Info in Mobile Menu */}
             {userId && user && (
               <div className="border-t border-gray-200 pt-4 mt-4">
-                <div className="flex items-center px-3 py-2">
-                  <div className="flex-shrink-0">
-                    <div className="h-8 w-8 rounded-full bg-blue-500 flex items-center justify-center">
-                      <span className="text-white font-medium text-sm">
-                        {user.name?.firstname?.charAt(0) || 'U'}
-                      </span>
-                    </div>
-                  </div>
-                  <div className="ml-3">
-                    <p className="text-sm font-medium text-gray-900">
-                      {getUserDisplayName?.() || `User ${userId}`}
-                    </p>
-                    <p className="text-xs text-gray-500">{user.email}</p>
-                  </div>
-                </div>
+                <UserProfileMenuButton
+                  userId={userId}
+                  user={user}
+                  onClick={() => setIsMobileMenuOpen(false)}
+                />
               </div>
             )}
           </nav>
